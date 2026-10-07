@@ -101,7 +101,7 @@ h3{text-align:center;text-decoration:underline;margin:0 0 12mm;font-size:11pt}
 <option value="ppa">Probation Period Assessment</option>
 </optgroup>
 <optgroup label="Field Operations">
-<option value="" disabled>Kono letter ekhono add kora hoyni</option>
+<option value="salaryf">Salary Certificate</option>
 </optgroup>
 </select>
 <label for="eid">Employee ID</label>
@@ -118,6 +118,12 @@ h3{text-align:center;text-decoration:underline;margin:0 0 12mm;font-size:11pt}
 <textarea id="paste" rows="3" placeholder="Ba ekhane paste korun (header shoho)"></textarea>
 <button class="alt" id="load">Load pasted data</button>
 <div id="cnt" class="note"></div></details>
+<details class="adm" hidden><summary>🔒 Admin: Field Operations data upload</summary>
+<p class="note">Field tab-er CSV file ekhane select korun, ba cell copy kore niche paste korun. Header-er naam Field tab-er moto-i rakhben (New Staff Code, Employee Name, Joining Date, Emplyee Status, Last Wroking Day, Update Salary 2026 ityadi) — tool nijei map kore nebe.</p>
+<input type="file" id="fileF" accept=".csv,.tsv,.txt">
+<textarea id="pasteF" rows="3" placeholder="Ba ekhane paste korun (header shoho)"></textarea>
+<button class="alt" id="loadF">Load pasted data (Field)</button>
+<div id="cntF" class="note"></div></details>
 <details class="adm" hidden><summary>🔒 Admin: Letter body edit</summary>
 <p class="note">Data-r header-er naam <b>{{Name}}</b> moto likhun. Format: <b>{{Gross Salary:money}}</b> (1,25,000), <b>{{Gross Salary:words}}</b> (kothay). Bold: **text**. Table: | Label | {{Basic:money}} | (header row: |= A | B |). He/She: {{He}} {{he}} {{His}} {{his}}. a/an: {{Designation:art}}. Date: {{Date of Joining:date}}. Active/Resigned: {{Period End}}. Special: {{Today}}, {{Year}}.</p>
 <label for="tpl">Salary Certificate: ACTIVE employee body</label><textarea id="tpl" rows="12"></textarea>
@@ -251,7 +257,7 @@ const TPLAP2=`10.\tYou will be retired from the services at the age of 60 (sixty
 18.\tAny other issue conditions not specifically mentioned in this contract shall be governed by the Company's rules and regulations which are currently in force or changed by the Company from time to time.
 
 This employment is based on the information and documents you have provided. If at any time any information and documents are found false or any vital information not disclosed, the company reserves the right to terminate your employment without any notice or salary in lieu of.`;
-const TYPES={salary:{cat:'hq',label:'Salary Certificate',title:'Salary Certificate',file:'Salary_Certificate',pre:'for',jt:'Manager, HR &amp; Admin',mail:true,tk:a=>a?'tpl':'tplr'},
+const TYPES={salary:{cat:'hq',label:'Salary Certificate',title:'Salary Certificate',file:'Salary_Certificate',pre:'for',jt:'Manager, HR &amp; Admin',mail:true,tk:a=>a?'tpl':'tplr'},salaryf:{cat:'field',label:'Salary Certificate',title:'Salary Certificate',file:'Salary_Certificate',pre:'for',jt:'Manager, HR &amp; Admin',mail:true,tk:a=>a?'tpl':'tplr'},
 exp:{cat:'hq',label:'Experience Letter',title:'Experience Certificate',file:'Experience_Letter',pre:'For',jt:'Manager, Human Resources',mail:true,who:'resigned',exp:true,tk:()=>'tple'},
 rel:{cat:'hq',label:'Release Letter',file:'Release_Letter',pre:'For',jt:'Manager, Human Resources',mail:true,who:'resigned',rel:true,tk:()=>'tplx'},
 rac:{cat:'hq',label:'Resignation Acceptance',file:'Resignation_Acceptance',jt:'Manager, Human Resources',mail:false,co:true,who:'resigned',rac:true,tk:()=>'tplz'},
@@ -292,17 +298,23 @@ lastOK=Date.now();save('wg4_sync',lastOK);const ch=JSON.stringify(rows)!==JSON.s
 catch(e){setSt(false,'⚠ Live sync hoy nai: '+(e&&e.message||e)+' | purano data dekhachhe'+(lastOK?' (last sync: '+tm(lastOK)+')':' (built-in snapshot)')+'. Print-er age data mile nin.')}
 busy=false;$('sync').disabled=false;$('sync').textContent='Sync Data'}
 function viaJsonpF(){return new Promise((ok,no)=>{window.google=window.google||{};google.visualization=google.visualization||{};google.visualization.Query=google.visualization.Query||{};
-const sc=document.createElement('script'),to=setTimeout(()=>{sc.remove();no()},15000);
-google.visualization.Query.setResponse=r=>{clearTimeout(to);sc.remove();if(r.status!='ok')return no();const c=r.table.cols.map(x=>x.label);ok(r.table.rows.map(rw=>Object.fromEntries(c.map((l,i)=>{const x=rw.c[i];return[l,x?String(x.f!=null?x.f:x.v!=null?x.v:''):'']}))))};
-sc.onerror=()=>{clearTimeout(to);no()};sc.src=SHEETJ_F+'&_='+Date.now();document.head.appendChild(sc)})}
-async function viaCsvF(){const r=await fetch(SHEET_F+'&_='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;return parse(await r.text())}
-function setDataF(rows){if(!rows.length)return;DATA_F=rows;const ks=Object.keys(rows[0]);KEY_F=ks.find(k=>/\bid\b/i.test(k))||ks[0]}
+const sc=document.createElement('script'),to=setTimeout(()=>{sc.remove();no(new Error('jsonp-timeout(15s)'))},15000);
+google.visualization.Query.setResponse=r=>{clearTimeout(to);sc.remove();if(r.status!='ok')return no(new Error('jsonp-status:'+r.status));if(!r.table||!r.table.cols)return no(new Error('jsonp-empty-table'));const c=r.table.cols.map(x=>x.label);ok(r.table.rows.map(rw=>Object.fromEntries(c.map((l,i)=>{const x=rw.c[i];return[l,x?String(x.f!=null?x.f:x.v!=null?x.v:''):'']}))))};
+sc.onerror=()=>{clearTimeout(to);no(new Error('jsonp-script-load-failed'))};sc.src=SHEETJ_F+'&_='+Date.now();document.head.appendChild(sc)})}
+async function viaCsvF(){let r;try{r=await fetch(SHEET_F+'&_='+Date.now(),{cache:'no-store'})}catch(e){throw new Error('fetch-blocked: '+(e&&e.message||e))}if(!r.ok)throw new Error('http-'+r.status);const t=await r.text();if(/^\s*<(!DOCTYPE|html)/i.test(t))throw new Error('got-html(not public)');return parse(t)}
+const FIELD_MAP={'New Staff Code':'Staff Id No','Employee Name':'Name','Joining Date':'Date of Joining','Emplyee Status':'Employee Status','Last Wroking Day':'Last Working Day','Update Salary 2026':'Salary 2026'};
+const remapField=rows=>rows.map(r=>{const o={};for(const k in r){o[FIELD_MAP[k]||k]=r[k]}return o});
+function setDataF(rows,persist){rows=slim(remapField(rows));if(!rows.length){if(persist)$('cntF').textContent='Kono data paoa jayni.';return}DATA_F=rows;KEY_F='Staff Id No';if(persist){$('cntF').textContent=`${rows.length} Field employee loaded.`;save('wg5_dataF',JSON.stringify(rows))}}
 async function syncField(manual){if(busy_F)return;busy_F=true;
-try{let rows;try{rows=await viaJsonpF()}catch(e){rows=[]}if(!rows.length)rows=await viaCsvF();
-rows=rows.filter(r=>Object.values(r).some(v=>String(v).trim()));
-if(!rows.length)throw 0;
-lastOK_F=Date.now();save('wg4_syncF',lastOK_F);setDataF(rows);draw()}
-catch(e){/* Field Operations tab not reachable yet — silent, no letters use it so far */}
+const isCur=()=>(TYPES[$('ltype').value]||{}).cat=='field';
+let e1=null,e2=null;
+try{let rows;try{rows=await viaJsonpF()}catch(e){e1=e;rows=[]}
+if(!rows.length){try{rows=await viaCsvF()}catch(e){e2=e}}
+rows=(rows||[]).filter(r=>Object.values(r).some(v=>String(v).trim()));
+if(!rows.length)throw new Error((e1?e1.message:'jsonp:no-rows')+' | '+(e2?e2.message:'csv:no-rows'));
+lastOK_F=Date.now();save('wg4_syncF',lastOK_F);setDataF(rows,true);draw();
+if(isCur())setSt(true,'✓ Field Data synced ('+DATA_F.length+' staff) at '+tm(lastOK_F))}
+catch(e){if(isCur())setSt(false,'⚠ Field live sync hoy nai: '+(e&&e.message||e)+(lastOK_F?' | purano data dekhachhe (last sync: '+tm(lastOK_F)+')':' | kono data nai'))}
 busy_F=false}
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const save=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
@@ -328,7 +340,7 @@ return esc(v)})}
 function draw(){$('page').classList.toggle('nolh',!$('lh').checked);$('page2').classList.toggle('nolh',!$('lh').checked);
 const LT0=TYPES[$('ltype').value]||TYPES.salary;
 const curData=(LT0.cat=='field')?DATA_F:DATA,curKey=(LT0.cat=='field')?KEY_F:KEY;
-if(curData.length)$('ids').innerHTML=curData.map(r=>`<option value="${esc(r[curKey])}">${esc(r[Object.keys(r).find(k=>/name/i.test(k))||curKey])}</option>`).join('');
+$('ids').innerHTML=curData.map(r=>`<option value="${esc(r[curKey])}">${esc(r[Object.keys(r).find(k=>/name/i.test(k))||curKey])}</option>`).join('');
 const id=$('eid').value.trim().toLowerCase();
 emp=curData.find(r=>String(r[curKey]).trim().toLowerCase()==id)||null;$('pbtn').disabled=$('spdf').disabled=!emp;
 $('msg').textContent=id&&!emp?'Ei ID paoa jayni.':'';$('warn').textContent='';
@@ -460,11 +472,15 @@ $('eid').oninput=draw;$('sg').onchange=draw;$('lh').onchange=draw;$('ltype').onc
 $('rst').onclick=()=>{$('tpl').value=TPL;$('tplr').value=TPLR;$('tple').value=TPLE;$('tplx').value=TPLX;$('tplz').value=TPLZ;$('tplc').value=TPLC;$('tplap1').value=TPLAP1;$('tplap2').value=TPLAP2;save('wg4_tpl',TPL);save('wg4_tplr',TPLR);save('wg4_tple',TPLE);save('wg4_tplx',TPLX);save('wg4_tplz',TPLZ);save('wg4_tplc',TPLC);save('wg4_tplap1',TPLAP1);save('wg4_tplap2',TPLAP2);draw()};
 $('file').onchange=e=>{const f=e.target.files[0];if(f)f.text().then(t=>setData(slim(parse(t)),true))};
 $('load').onclick=()=>setData(slim(parse($('paste').value)),true);
+$('fileF').onchange=e=>{const f=e.target.files[0];if(f)f.text().then(t=>setDataF(parse(t),true))};
+$('loadF').onclick=()=>setDataF(parse($('pasteF').value),true);
 $('pbtn').onclick=()=>{if(Date.now()-lastOK>120000&&!confirm('Data sync hoy nai (last: '+(lastOK?tm(lastOK):'kokhono na')+'). Puran data diye print korben?'))return;const o=document.title;document.title=TYPES[$('ltype').value].label+' - '+(emp[Object.keys(emp).find(k=>/name/i.test(k))||KEY]);window.print();document.title=o};
 $('tpl').value=TPL;$('tplr').value=TPLR;$('tple').value=TPLE;$('tplx').value=TPLX;$('tplz').value=TPLZ;$('tplc').value=TPLC;$('tplap1').value=TPLAP1;$('tplap2').value=TPLAP2;
 const today=()=>(d=>String(d.getDate()).padStart(2,'0')+' '+d.toLocaleString('en-GB',{month:'long'})+', '+d.getFullYear())(new Date());
 let saved=null;try{saved=JSON.parse(get('wg5_data'))}catch(e){}
 setData(saved&&saved.length?saved:slim(parse(SAMPLE)),false);
+let savedF=null;try{savedF=JSON.parse(get('wg5_dataF'))}catch(e){}
+if(savedF&&savedF.length){DATA_F=savedF;KEY_F='Staff Id No'}
 function pagesToPdf(pages){const enc=new TextEncoder(),parts=[],offs=[];let len=0;
 const add=x=>{const b=typeof x=='string'?enc.encode(x):x;parts.push(b);len+=b.length};
 const obj=(n,body)=>{offs[n]=len;add(n+' 0 obj\n'+body+'\nendobj\n')};
