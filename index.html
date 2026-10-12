@@ -450,6 +450,22 @@ const hasResigned=!!(gv2(/resignation notification date/i)||gv2(/last working da
 const blocked=LT.ppa?!/probation/i.test(gv2(/employement status/i)):LT.noc?!hasResigned:(LT.who=='resigned'&&act)||(LT.who=='active'&&!act);
 $('pbtn').disabled=$('spdf').disabled=blocked;$('out').className='body'+(LT.exp?' exp':'')+(LT.rel?' rel':'')+(LT.rac?' ra':'')+(LT.noc?' noc':'')+(LT.ce?' ce':'')+(LT.ppa?' ppa':'');
 if(blocked){$('out').innerHTML=LT.ppa?'<div class="empty">Probation Period Assessment shudhu Probationary employee-er jonno.<br>Ei employee-r Employement Status Probationary na.</div>':LT.noc?'<div class="empty">Ei employee-r kono resignation record nai (Resignation Notification Date / Last Working Day khali).</div>':LT.who=='active'?'<div class="empty">'+LT.label+' shudhu Active employee-er jonno.<br>Ei employee Resigned.</div>':'<div class="empty">'+LT.label+' shudhu Resigned employee-er jonno.<br>Ei employee ekhono Active.</div>';$('msg').textContent='Ei letter ei employee-r jonno pawa jabe na.';return}
+if(LT.joinf){
+const nm=gv2(/^name$/i),dg=gv2(/designation/i);
+const jMiss=[];[['Name',nm],['Designation',dg]].forEach(([l,v])=>{if(!v)jMiss.push(l)});
+if(jMiss.length)$('warn').textContent='Data-te nai ba khali: '+jMiss.join(', ');
+$('page').classList.remove('brk');$('page2').style.display='none';
+$('out').className='body joinf';
+const jbody=toHTML(fill(esc($('tpljoinf').value),miss));
+$('out').innerHTML=`<div class="meta"><span>তারিখ: ${bnDateWords(today())}</span></div>
+<div style="margin:6mm 0 5mm">বরাবর<br>ম্যানেজার – হিউম্যান রিসোর্সেস<br>উইগ্রো টেকনোলজিস লিমিটেড</div>
+<div style="font-weight:700;margin-bottom:6mm">বিষয়: যোগদান পত্র</div>
+<p>জনাব,</p>
+${jbody}
+<div style="margin-top:10mm">বিনীত নিবেদক,</div>
+<div style="margin-top:16mm">নাম: <b>${esc(nm)}</b></div>
+<div style="margin-top:4mm">স্বাক্ষর: ……………………</div>`;
+return}
 if(LT.ppa){
 const g=re=>gv2(re),nm=g(/^name$/i),dg=g(/designation/i),dp=g(/^department$/i),doj=g(/date of joining/i),sid=g(/^supervisor id$/i),snm=g(/^supervisor name$/i);
 let due=g(/due date of confirmation/i),dueTxt='';
@@ -593,14 +609,14 @@ const info=LT.rel?`<div class="rl-info">
 $('out').innerHTML=`<div class="meta"><span>${today()}</span></div>${(LT.rel||LT.rac)?'':'<h3>'+LT.title+'</h3>'}${info||''}${body}
 <div class="sig">${LT.sig?LT.sig:(LT.pre?LT.pre+' WeGro Technologies Limited,':'')}<div class="stamp">${$('sg').checked?`<img class="s" src="${IMG.sig}"><img class="z" src="${IMG.seal}">`:''}</div><b>Md. Moniruzzaman</b><br>${LT.jt}${LT.mail?'<br><span class="em">hr@wegro.global</span>':''}${LT.co?'<br>WeGro Technologies Limited':''}</div>`}
 $('eid').oninput=draw;$('sg').onchange=draw;$('lh').onchange=draw;$('ltype').onchange=()=>{save('wg4_ltype',$('ltype').value);draw()};
-['tpl','tplr','tple','tplx','tplz','tplc','tplap1','tplap2','tplfap1','tplfap2','tplbndict'].forEach(i=>$(i).oninput=()=>{save('wg4_'+i,$(i).value);draw()});
-$('rst').onclick=()=>{$('tpl').value=TPL;$('tplr').value=TPLR;$('tple').value=TPLE;$('tplx').value=TPLX;$('tplz').value=TPLZ;$('tplc').value=TPLC;$('tplap1').value=TPLAP1;$('tplap2').value=TPLAP2;$('tplfap1').value=TPLFAP1;$('tplfap2').value=TPLFAP2;$('tplbndict').value=BNDICT_DEFAULT;save('wg4_tpl',TPL);save('wg4_tplr',TPLR);save('wg4_tple',TPLE);save('wg4_tplx',TPLX);save('wg4_tplz',TPLZ);save('wg4_tplc',TPLC);save('wg4_tplap1',TPLAP1);save('wg4_tplap2',TPLAP2);save('wg4_tplfap1',TPLFAP1);save('wg4_tplfap2',TPLFAP2);save('wg4_tplbndict',BNDICT_DEFAULT);draw()};
+['tpl','tplr','tple','tplx','tplz','tplc','tplap1','tplap2','tplfap1','tplfap2','tplbndict','tpljoinf'].forEach(i=>$(i).oninput=()=>{save('wg4_'+i,$(i).value);draw()});
+$('rst').onclick=()=>{$('tpl').value=TPL;$('tplr').value=TPLR;$('tple').value=TPLE;$('tplx').value=TPLX;$('tplz').value=TPLZ;$('tplc').value=TPLC;$('tplap1').value=TPLAP1;$('tplap2').value=TPLAP2;$('tplfap1').value=TPLFAP1;$('tplfap2').value=TPLFAP2;$('tplbndict').value=BNDICT_DEFAULT;$('tpljoinf').value=TPLJOINF;save('wg4_tpl',TPL);save('wg4_tplr',TPLR);save('wg4_tple',TPLE);save('wg4_tplx',TPLX);save('wg4_tplz',TPLZ);save('wg4_tplc',TPLC);save('wg4_tplap1',TPLAP1);save('wg4_tplap2',TPLAP2);save('wg4_tplfap1',TPLFAP1);save('wg4_tplfap2',TPLFAP2);save('wg4_tplbndict',BNDICT_DEFAULT);save('wg4_tpljoinf',TPLJOINF);draw()};
 $('file').onchange=e=>{const f=e.target.files[0];if(f)f.text().then(t=>setData(slim(parse(t)),true))};
 $('load').onclick=()=>setData(slim(parse($('paste').value)),true);
 $('fileF').onchange=e=>{const f=e.target.files[0];if(f)f.text().then(t=>setDataF(parse(t),true))};
 $('loadF').onclick=()=>setDataF(parse($('pasteF').value),true);
 $('pbtn').onclick=()=>{const lastOkNow=(TYPES[$('ltype').value].cat=='field')?lastOK_F:lastOK;if(Date.now()-lastOkNow>120000&&!confirm('Data sync hoy nai (last: '+(lastOkNow?tm(lastOkNow):'kokhono na')+'). Puran data diye print korben?'))return;const o=document.title;document.title=TYPES[$('ltype').value].label+' - '+(emp[Object.keys(emp).find(k=>/name/i.test(k))||KEY]);window.print();document.title=o};
-$('tpl').value=TPL;$('tplr').value=TPLR;$('tple').value=TPLE;$('tplx').value=TPLX;$('tplz').value=TPLZ;$('tplc').value=TPLC;$('tplap1').value=TPLAP1;$('tplap2').value=TPLAP2;$('tplfap1').value=TPLFAP1;$('tplfap2').value=TPLFAP2;$('tplbndict').value=BNDICT_DEFAULT;
+$('tpl').value=TPL;$('tplr').value=TPLR;$('tple').value=TPLE;$('tplx').value=TPLX;$('tplz').value=TPLZ;$('tplc').value=TPLC;$('tplap1').value=TPLAP1;$('tplap2').value=TPLAP2;$('tplfap1').value=TPLFAP1;$('tplfap2').value=TPLFAP2;$('tplbndict').value=BNDICT_DEFAULT;$('tpljoinf').value=TPLJOINF;
 const today=()=>(d=>String(d.getDate()).padStart(2,'0')+' '+d.toLocaleString('en-GB',{month:'long'})+', '+d.getFullYear())(new Date());
 let saved=null;try{saved=JSON.parse(get('wg5_data'))}catch(e){}
 setData(saved&&saved.length?saved:slim(parse(SAMPLE)),false);
@@ -642,7 +658,7 @@ const vpwNow=()=>get('wg_vpw')||VPW_DEFAULT;
 let isAdmin=false;
 const pwNow=()=>get('wg_pw')||PW;
 function setAdmin(on){isAdmin=on;document.querySelectorAll('.adm').forEach(e=>e.hidden=!on);$('alogin').textContent=on?'🔓 Admin logout':'🔒 Admin login';
-$('tpl').value=on?(get('wg4_tpl')||TPL):TPL;$('tplr').value=on?(get('wg4_tplr')||TPLR):TPLR;$('tple').value=on?(get('wg4_tple')||TPLE):TPLE;$('tplx').value=on?(get('wg4_tplx')||TPLX):TPLX;$('tplz').value=on?(get('wg4_tplz')||TPLZ):TPLZ;$('tplc').value=on?(get('wg4_tplc')||TPLC):TPLC;$('tplap1').value=on?(get('wg4_tplap1')||TPLAP1):TPLAP1;$('tplap2').value=on?(get('wg4_tplap2')||TPLAP2):TPLAP2;$('tplfap1').value=on?(get('wg4_tplfap1')||TPLFAP1):TPLFAP1;$('tplfap2').value=on?(get('wg4_tplfap2')||TPLFAP2):TPLFAP2;$('tplbndict').value=on?(get('wg4_tplbndict')||BNDICT_DEFAULT):BNDICT_DEFAULT;draw()}
+$('tpl').value=on?(get('wg4_tpl')||TPL):TPL;$('tplr').value=on?(get('wg4_tplr')||TPLR):TPLR;$('tple').value=on?(get('wg4_tple')||TPLE):TPLE;$('tplx').value=on?(get('wg4_tplx')||TPLX):TPLX;$('tplz').value=on?(get('wg4_tplz')||TPLZ):TPLZ;$('tplc').value=on?(get('wg4_tplc')||TPLC):TPLC;$('tplap1').value=on?(get('wg4_tplap1')||TPLAP1):TPLAP1;$('tplap2').value=on?(get('wg4_tplap2')||TPLAP2):TPLAP2;$('tplfap1').value=on?(get('wg4_tplfap1')||TPLFAP1):TPLFAP1;$('tplfap2').value=on?(get('wg4_tplfap2')||TPLFAP2):TPLFAP2;$('tplbndict').value=on?(get('wg4_tplbndict')||BNDICT_DEFAULT):BNDICT_DEFAULT;$('tpljoinf').value=on?(get('wg4_tpljoinf')||TPLJOINF):TPLJOINF;draw()}
 $('alogin').onclick=()=>{if(isAdmin){setAdmin(false);return}const p=prompt('Admin password:');if(p===null)return;if(hp(p)===pwNow())setAdmin(true);else alert('Password thik na.')};
 $('apw').onclick=()=>{const p=prompt('Notun admin password (kom-pokkhe 6 character):');if(!p||p.length<6)return;save('wg_pw',hp(p));alert('Password bodlano hoyeche. Team-er jonno abar "Save locked copy for team" korun.')};
 $('vpw').onclick=()=>{const p=prompt('Notun PAGE password (ei page khulte joto jon lagbe, shobai ei password use korbe):');if(!p||p.length<4)return;save('wg_vpw',hp(p));localStorage.removeItem('wg_unlocked');alert('Page password bodlano hoyeche. Team-ke notun password janie din, ar "Save locked copy for team" diye notun file taderke pathan.')};
@@ -654,7 +670,7 @@ c.querySelectorAll('.adm').forEach(e=>e.setAttribute('hidden',''));
 ['out','msg','st','cnt','warn','ids'].forEach(i=>{const e=c.querySelector('#'+i);if(e)e.innerHTML=''});
 c.querySelector('#alogin').textContent='🔒 Admin login';
 const q=t=>t.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$\{/g,'\\${');
-const h='<!DOCTYPE html>\n'+c.outerHTML.replace(/const TPL=`[\s\S]*?`;/,()=>'const TPL=`'+q($('tpl').value)+'`;').replace(/const TPLR=`[\s\S]*?`;/,()=>'const TPLR=`'+q($('tplr').value)+'`;').replace(/const TPLE=`[\s\S]*?`;/,()=>'const TPLE=`'+q($('tple').value)+'`;').replace(/const TPLX=`[\s\S]*?`;/,()=>'const TPLX=`'+q($('tplx').value)+'`;').replace(/const TPLZ=`[\s\S]*?`;/,()=>'const TPLZ=`'+q($('tplz').value)+'`;').replace(/const TPLC=`[\s\S]*?`;/,()=>'const TPLC=`'+q($('tplc').value)+'`;').replace(/const TPLAP1=`[\s\S]*?`;/,()=>'const TPLAP1=`'+q($('tplap1').value)+'`;').replace(/const TPLAP2=`[\s\S]*?`;/,()=>'const TPLAP2=`'+q($('tplap2').value)+'`;').replace(/const TPLFAP1=`[\s\S]*?`;/,()=>'const TPLFAP1=`'+q($('tplfap1').value)+'`;').replace(/const TPLFAP2=`[\s\S]*?`;/,()=>'const TPLFAP2=`'+q($('tplfap2').value)+'`;').replace(/const BNDICT_DEFAULT=`[\s\S]*?`;/,()=>'const BNDICT_DEFAULT=`'+q($('tplbndict').value)+'`;').replace(/const VPW_DEFAULT='[^']*';/,()=>"const VPW_DEFAULT='"+vpwNow()+"';").replace(/const PW='[^']*';/,()=>"const PW='"+pwNow()+"';");
+const h='<!DOCTYPE html>\n'+c.outerHTML.replace(/const TPL=`[\s\S]*?`;/,()=>'const TPL=`'+q($('tpl').value)+'`;').replace(/const TPLR=`[\s\S]*?`;/,()=>'const TPLR=`'+q($('tplr').value)+'`;').replace(/const TPLE=`[\s\S]*?`;/,()=>'const TPLE=`'+q($('tple').value)+'`;').replace(/const TPLX=`[\s\S]*?`;/,()=>'const TPLX=`'+q($('tplx').value)+'`;').replace(/const TPLZ=`[\s\S]*?`;/,()=>'const TPLZ=`'+q($('tplz').value)+'`;').replace(/const TPLC=`[\s\S]*?`;/,()=>'const TPLC=`'+q($('tplc').value)+'`;').replace(/const TPLAP1=`[\s\S]*?`;/,()=>'const TPLAP1=`'+q($('tplap1').value)+'`;').replace(/const TPLAP2=`[\s\S]*?`;/,()=>'const TPLAP2=`'+q($('tplap2').value)+'`;').replace(/const TPLFAP1=`[\s\S]*?`;/,()=>'const TPLFAP1=`'+q($('tplfap1').value)+'`;').replace(/const TPLFAP2=`[\s\S]*?`;/,()=>'const TPLFAP2=`'+q($('tplfap2').value)+'`;').replace(/const BNDICT_DEFAULT=`[\s\S]*?`;/,()=>'const BNDICT_DEFAULT=`'+q($('tplbndict').value)+'`;').replace(/const TPLJOINF=`[\s\S]*?`;/,()=>'const TPLJOINF=`'+q($('tpljoinf').value)+'`;').replace(/const VPW_DEFAULT='[^']*';/,()=>"const VPW_DEFAULT='"+vpwNow()+"';").replace(/const PW='[^']*';/,()=>"const PW='"+pwNow()+"';");
 const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([h],{type:'text/html'}));a.download='WeGro_HR.html';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000)};
 
 $('ltype').value=(k=>TYPES[k]?k:'salary')(get('wg4_ltype'));draw();lastOK=+get('wg4_sync')||0;$('sync').onclick=()=>{sync(true);syncField(true)};setSt(null,'Data sync hocche...');sync(false);syncField(false);setInterval(()=>{sync(false);syncField(false)},10000);window.addEventListener('focus',()=>{sync(false);syncField(false)});
