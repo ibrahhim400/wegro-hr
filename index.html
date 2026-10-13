@@ -392,7 +392,9 @@ async function viaUrl(u){let r;try{r=await fetch(u+(u.includes('?')?'&':'?')+'_=
 async function viaCsv(){try{return await viaUrl(SHEET_EXPORT)}catch(e1){try{return await viaUrl(SHEET)}catch(e2){throw new Error('export:'+e1.message+' | gviz-csv:'+e2.message)}}}
 async function sync(manual){if(busy){if(manual)setSt(null,'Sync cholche, ekto opekkha korun...');return}busy=true;$('sync').disabled=true;$('sync').textContent='⏳ Sync hocche...';
 let e1=null,e2=null;try{let rows;try{rows=slim(await viaJsonp())}catch(e){e1=e;rows=[]}if(!rows.length){try{rows=slim(await viaCsv())}catch(e){e2=e}}if(!rows||!rows.length)throw new Error((e1?e1.message:'jsonp:no-rows')+' | '+(e2?e2.message:'csv:no-rows'));
-lastOK=Date.now();save('wg4_sync',lastOK);const ch=JSON.stringify(rows)!==JSON.stringify(DATA);if(ch)setData(rows,true);const mc=WANT.filter(w=>!(w in rows[0]));setSt(!mc.length,(mc.length?'⚠ Ei column paoa jayni: '+mc.join(', ')+'. Data ('+rows.length+' staff), synced ':'✓ Data synced ('+rows.length+' staff) at ')+tm(lastOK)+(manual?(ch?' | notun/update data ashche':' | kono change nai, data up to date'):''))}
+lastOK=Date.now();save('wg4_sync',lastOK);
+if(DATA.length&&rows.length<DATA.length*0.5){setSt(false,'⚠ Notun sync-e onek kom data elo ('+rows.length+'/'+DATA.length+'), tai age-r data-i rakha holo. Abar try korun.')}
+else{const ch=JSON.stringify(rows)!==JSON.stringify(DATA);if(ch)setData(rows,true);const mc=WANT.filter(w=>!(w in rows[0]));setSt(!mc.length,(mc.length?'⚠ Ei column paoa jayni: '+mc.join(', ')+'. Data ('+rows.length+' staff), synced ':'✓ Data synced ('+rows.length+' staff) at ')+tm(lastOK)+(manual?(ch?' | notun/update data ashche':' | kono change nai, data up to date'):''))}}
 catch(e){setSt(false,'⚠ Live sync hoy nai: '+(e&&e.message||e)+' | purano data dekhachhe'+(lastOK?' (last sync: '+tm(lastOK)+')':' (built-in snapshot)')+'. Print-er age data mile nin.')}
 busy=false;$('sync').disabled=false;$('sync').textContent='Sync Data'}
 function viaJsonpF(){return new Promise((ok,no)=>{window.google=window.google||{};google.visualization=google.visualization||{};google.visualization.Query=google.visualization.Query||{};
@@ -410,8 +412,9 @@ try{let rows;try{rows=await viaJsonpF()}catch(e){e1=e;rows=[]}
 if(!rows.length){try{rows=await viaCsvF()}catch(e){e2=e}}
 rows=(rows||[]).filter(r=>Object.values(r).some(v=>String(v).trim()));
 if(!rows.length)throw new Error((e1?e1.message:'jsonp:no-rows')+' | '+(e2?e2.message:'csv:no-rows'));
-lastOK_F=Date.now();save('wg4_syncF',lastOK_F);setDataF(rows,true);draw();
-if(isCur())setSt(true,'✓ Field Data synced ('+DATA_F.length+' staff) at '+tm(lastOK_F))}
+lastOK_F=Date.now();save('wg4_syncF',lastOK_F);
+if(DATA_F.length&&rows.length<DATA_F.length*0.5){if(isCur())setSt(false,'⚠ Notun sync-e onek kom Field data elo ('+rows.length+'/'+DATA_F.length+'), tai age-r data-i rakha holo. Abar try korun.')}
+else{setDataF(rows,true);draw();if(isCur())setSt(true,'✓ Field Data synced ('+DATA_F.length+' staff) at '+tm(lastOK_F))}}
 catch(e){if(isCur())setSt(false,'⚠ Field live sync hoy nai: '+(e&&e.message||e)+(lastOK_F?' | purano data dekhachhe (last sync: '+tm(lastOK_F)+')':' | kono data nai'))}
 busy_F=false}
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -452,7 +455,7 @@ $('pbtn').disabled=$('spdf').disabled=blocked;$('out').className='body'+(LT.exp?
 if(blocked){$('out').innerHTML=LT.ppa?'<div class="empty">Probation Period Assessment shudhu Probationary employee-er jonno.<br>Ei employee-r Employement Status Probationary na.</div>':LT.noc?'<div class="empty">Ei employee-r kono resignation record nai (Resignation Notification Date / Last Working Day khali).</div>':LT.who=='active'?'<div class="empty">'+LT.label+' shudhu Active employee-er jonno.<br>Ei employee Resigned.</div>':'<div class="empty">'+LT.label+' shudhu Resigned employee-er jonno.<br>Ei employee ekhono Active.</div>';$('msg').textContent='Ei letter ei employee-r jonno pawa jabe na.';return}
 if(LT.joinf){
 const nm=gv2(/^name$/i),dg=gv2(/designation/i);
-const jMiss=[];[['Name',nm],['Designation',dg]].forEach(([l,v])=>{if(!v)jMiss.push(l)});
+const jMiss=[];[['Designation',dg]].forEach(([l,v])=>{if(!v)jMiss.push(l)});
 if(jMiss.length)$('warn').textContent='Data-te nai ba khali: '+jMiss.join(', ');
 $('page').classList.remove('brk');$('page2').style.display='none';
 $('out').className='body joinf';
@@ -463,7 +466,7 @@ $('out').innerHTML=`<div class="meta"><span>তারিখ: ${bnDateWords(today
 <p>জনাব,</p>
 ${jbody}
 <div style="margin-top:10mm">বিনীত নিবেদক,</div>
-<div style="margin-top:16mm">নাম: <b>${esc(nm)}</b></div>
+<div style="margin-top:16mm">নাম: ……………………………</div>
 <div style="margin-top:4mm">স্বাক্ষর: ……………………</div>`;
 return}
 if(LT.ppa){
