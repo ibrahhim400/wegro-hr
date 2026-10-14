@@ -272,6 +272,7 @@ const bnDateWords=v=>{const t=fmtDate(v);const m=t.match(/^(\d{2}) (\w+), (\d{4}
 const BNDICT_DEFAULT=`field officer = ফিল্ড অফিসার
 trainee field officer = ট্রেইনি ফিল্ড অফিসার
 field agent = ফিল্ড এজেন্ট
+regional manager = আঞ্চলিক ব্যবস্থাপক
 area coordinator = এরিয়া কো-অর্ডিনেটর
 field supervisor = ফিল্ড সুপারভাইজার
 field operations = ফিল্ড অপারেশন্স
@@ -676,5 +677,5 @@ const q=t=>t.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$\{/g,'\\${');
 const h='<!DOCTYPE html>\n'+c.outerHTML.replace(/const TPL=`[\s\S]*?`;/,()=>'const TPL=`'+q($('tpl').value)+'`;').replace(/const TPLR=`[\s\S]*?`;/,()=>'const TPLR=`'+q($('tplr').value)+'`;').replace(/const TPLE=`[\s\S]*?`;/,()=>'const TPLE=`'+q($('tple').value)+'`;').replace(/const TPLX=`[\s\S]*?`;/,()=>'const TPLX=`'+q($('tplx').value)+'`;').replace(/const TPLZ=`[\s\S]*?`;/,()=>'const TPLZ=`'+q($('tplz').value)+'`;').replace(/const TPLC=`[\s\S]*?`;/,()=>'const TPLC=`'+q($('tplc').value)+'`;').replace(/const TPLAP1=`[\s\S]*?`;/,()=>'const TPLAP1=`'+q($('tplap1').value)+'`;').replace(/const TPLAP2=`[\s\S]*?`;/,()=>'const TPLAP2=`'+q($('tplap2').value)+'`;').replace(/const TPLFAP1=`[\s\S]*?`;/,()=>'const TPLFAP1=`'+q($('tplfap1').value)+'`;').replace(/const TPLFAP2=`[\s\S]*?`;/,()=>'const TPLFAP2=`'+q($('tplfap2').value)+'`;').replace(/const BNDICT_DEFAULT=`[\s\S]*?`;/,()=>'const BNDICT_DEFAULT=`'+q($('tplbndict').value)+'`;').replace(/const TPLJOINF=`[\s\S]*?`;/,()=>'const TPLJOINF=`'+q($('tpljoinf').value)+'`;').replace(/const VPW_DEFAULT='[^']*';/,()=>"const VPW_DEFAULT='"+vpwNow()+"';").replace(/const PW='[^']*';/,()=>"const PW='"+pwNow()+"';");
 const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([h],{type:'text/html'}));a.download='WeGro_HR.html';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000)};
 
-$('ltype').value=(k=>TYPES[k]?k:'salary')(get('wg4_ltype'));draw();lastOK=+get('wg4_sync')||0;$('sync').onclick=()=>{sync(true);syncField(true)};setSt(null,'Data sync hocche...');sync(false);syncField(false);setInterval(()=>{sync(false);syncField(false)},10000);window.addEventListener('focus',()=>{sync(false);syncField(false)});
+$('ltype').value=(k=>TYPES[k]?k:'salary')(get('wg4_ltype'));draw();lastOK=+get('wg4_sync')||0;$('sync').onclick=()=>{sync(true);syncField(true)};setSt(null,'Data sync hocche...');sync(false);syncField(false);setInterval(()=>{sync(false);syncField(false)},300000);window.addEventListener('focus',()=>{sync(false);syncField(false)});
 </script></body></html>
