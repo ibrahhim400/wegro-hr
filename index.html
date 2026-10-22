@@ -271,7 +271,7 @@ let PR={};const art=v=>{const w=(String(v).match(/^[A-Za-z]+/)||[''])[0];const a
 const SHEET_EXPORT=atob('aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvMUJfRHloOE5kcEFMQTFlcjlxY3Ntbl9wcDJhRy1jNnRMazJXaWtJZG5fM3MvZXhwb3J0P2Zvcm1hdD1jc3YmZ2lkPTA=');
 const SHEET=atob('aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvMUJfRHloOE5kcEFMQTFlcjlxY3Ntbl9wcDJhRy1jNnRMazJXaWtJZG5fM3MvZ3Zpei90cT90cXg9b3V0OmNzdg==');
 const SHEETJ=SHEET.replace('out:csv','out:json&headers=1');let lastOK=0,busy=false;
-const WANT=['Staff Id No','Name','Date of Joining','Designation','Department','Salary 2026','Basic','House Rent','Conveyance Allowance','Medical Allowance','Gender','Employement Status','Employee Status','Last Working Day','Resignation Notification Date','Permanent Address','Personal Number','Supervisor ID','Supervisor Name','Due Date Of Confirmation','TA/DA','Mobile Bill'];
+const WANT=['Staff Id No','Name','Date of Joining','Designation','Department','Salary 2026','Basic','House Rent','Conveyance Allowance','Medical Allowance','Gender','Employement Status','Employee Status','Last Working Day','Resignation Notification Date','Permanent Address','Personal Number','Supervisor ID','Supervisor Name','Due Date Of Confirmation'];
 const nz=s=>String(s).replace(/[\s\u00a0\u200b\ufeff]+/g,' ').trim().toLowerCase();
 const slim=rows=>{if(!rows.length)return[];const ks=Object.keys(rows[0]),map={};
 WANT.forEach(w=>{const k=ks.find(x=>nz(x)==nz(w))||(w=='Salary 2026'?ks.find(x=>/^(gross )?salary( \d{4})?$/.test(nz(x))):null);if(k!=null)map[w]=k});
